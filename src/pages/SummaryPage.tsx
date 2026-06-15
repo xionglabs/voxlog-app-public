@@ -506,7 +506,7 @@ export default function SummaryPage() {
     return (
       <div className="flex flex-col min-h-screen" style={{ background: theme.bg }}>
         {/* 顶部导航 */}
-        <div className="flex items-center gap-3 px-4 pt-safe pt-6 pb-4">
+        <div className="flex items-center gap-3 px-4 pt-safe pt-10 pb-4">
           <button
             className="p-2 -ml-2 rounded-xl active:opacity-70"
             style={{ color: theme.text }}
@@ -518,7 +518,7 @@ export default function SummaryPage() {
             {config.language === 'zh' ? '复盘详情' : 'Review Detail'}
           </span>
         </div>
-        <div className="flex-1 px-4 pb-safe pb-12 overflow-y-auto">
+        <div className="flex-1 px-4 pb-safe pb-20 overflow-y-auto">
           <SummaryReport
             markdown={viewingRecord.content}
             period={viewingRecord.period}
@@ -535,7 +535,7 @@ export default function SummaryPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
-      <div className="px-5 pt-safe pt-6 pb-4">
+      <div className="px-5 pt-safe pt-10 pb-4">
         <h1 className="text-xl font-bold" style={{ color: theme.text }}>{t.aiSummary}</h1>
       </div>
 
@@ -562,7 +562,7 @@ export default function SummaryPage() {
       </div>
 
       {/* 内容区 */}
-      <div className="flex-1 px-4 pb-safe pb-12">
+      <div className="flex-1 px-4 pb-safe pb-20">
         {isLocked ? (
           <div
             className="rounded-2xl p-8 flex flex-col items-center justify-center gap-4"

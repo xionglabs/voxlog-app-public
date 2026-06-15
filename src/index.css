@@ -134,17 +134,17 @@ All colors MUST be HSL.
 
   /* 安全区域底部 */
   .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 48px);
   }
 
   /* 安全区域顶部（Android 沉浸式状态栏） */
   .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: env(safe-area-inset-top, 40px);
   }
 
   /* 页面根节点：顶部留出状态栏高度 */
   #root {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: env(safe-area-inset-top, 40px);
   }
 
   /* 额外安全边距：防止弧角屏幕内容被裁切 */

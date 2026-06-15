@@ -14,10 +14,14 @@ export default function SearchPage() {
 
   const handleSearch = useCallback(() => {
     if (!keyword.trim()) return
-    const res = searchDiaries(keyword.trim())
-    setResults(res)
-    setSearched(true)
-  }, [keyword])
+    try {
+      const res = searchDiaries(keyword.trim())
+      setResults(res)
+      setSearched(true)
+    } catch (err) {
+      toast.error(config.language === 'zh' ? '搜索出错，请重试' : 'Search error, please retry')
+    }
+  }, [keyword, config.language])
 
   const handleClear = () => {
     setKeyword('')
@@ -37,7 +41,7 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
-      <div className="px-5 pt-safe pt-6 pb-4">
+      <div className="px-5 pt-safe pt-10 pb-4">
         <h1 className="text-xl font-bold mb-4" style={{ color: theme.text }}>{t.search}</h1>
 
         {/* 搜索输入框 */}
@@ -67,12 +71,16 @@ export default function SearchPage() {
         </div>
 
         <button
+          type="button"
           className="w-full mt-3 py-3.5 rounded-2xl text-sm font-medium active:opacity-80 transition-opacity min-h-12"
           style={{
             background: keyword.trim() ? theme.text : theme.border,
             color: keyword.trim() ? theme.bg : theme.mutedText,
+            touchAction: 'manipulation',
+            cursor: 'pointer',
           }}
           onClick={handleSearch}
+          onTouchEnd={(e) => { e.preventDefault(); handleSearch() }}
           disabled={!keyword.trim()}
         >
           {t.search}
@@ -80,7 +88,7 @@ export default function SearchPage() {
       </div>
 
       {/* 搜索结果 */}
-      <div className="flex-1 px-4 pb-safe pb-12">
+      <div className="flex-1 px-4 pb-safe pb-20">
         {searched && (
           <div className="mb-3 px-2">
             <span className="text-sm" style={{ color: theme.mutedText }}>

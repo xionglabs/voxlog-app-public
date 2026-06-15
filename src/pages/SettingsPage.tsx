@@ -192,11 +192,11 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
-      <div className="px-5 pt-safe pt-6 pb-4">
+      <div className="px-5 pt-safe pt-10 pb-4">
         <h1 className="text-xl font-bold" style={{ color: theme.text }}>{t.settings}</h1>
       </div>
 
-      <div className="flex-1 px-4 pb-safe pb-12 overflow-y-auto">
+      <div className="flex-1 px-4 pb-safe pb-20 overflow-y-auto">
         {/* 会员状态卡片 */}
         <div
           className="rounded-2xl p-5 mb-4 cursor-pointer active:opacity-80 transition-opacity"

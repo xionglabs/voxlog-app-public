@@ -203,7 +203,7 @@ export default function HomePage() {
       style={{ background: theme.bg, color: theme.text }}
     >
       {/* ── 顶部标题区 ── */}
-      <div className="px-5 pt-6 pb-3 flex items-end justify-between">
+      <div className="px-5 pt-safe pt-10 pb-3 flex items-end justify-between">
         <div>
           <div className="text-xs mb-1" style={{ color: theme.mutedText }}>
             {format(new Date(), config.language === 'zh' ? 'yyyy年M月d日' : 'MMMM d, yyyy')}
@@ -361,7 +361,7 @@ export default function HomePage() {
           )}
 
           {/* 主录音按钮 */}
-          <div className="flex flex-col items-center pb-36 gap-3 pt-2">
+          <div className="flex flex-col items-center pb-safe pb-20 gap-3 pt-2">
             <div className="relative flex items-center justify-center">
               {isRecording && (
                 <div
@@ -419,7 +419,7 @@ export default function HomePage() {
         </>
       )}
 
-      {!isSelectedToday && <div className="pb-28" />}
+      {!isSelectedToday && <div className="pb-safe pb-20" />}
     </div>
   )
 }

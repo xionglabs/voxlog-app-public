@@ -16,7 +16,7 @@ const App: React.FC = () => {
           pb-safe: 底部安全区域（手势条/弧角屏幕）
           max-w-md: 限制最大宽度，移动端全屏桌面端居中
         */}
-        <div className="flex flex-col min-h-screen max-w-md mx-auto relative pt-safe pb-safe">
+        <div className="flex flex-col min-h-screen max-w-md mx-auto relative">
           <main className="flex-grow">
             <Routes>
               {routes.map((route, index) => (

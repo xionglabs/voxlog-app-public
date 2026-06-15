@@ -95,7 +95,7 @@ export default function DiaryDetailPage() {
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
       {/* 顶部导航 */}
       <div
-        className="flex items-center justify-between px-4 pt-safe pt-6 pb-4 sticky top-0 z-10"
+        className="flex items-center justify-between px-4 pt-safe pt-10 pb-4 sticky top-0 z-10"
         style={{ background: theme.bg }}
       >
         <button
@@ -155,7 +155,7 @@ export default function DiaryDetailPage() {
       </div>
 
       {/* 内容区 */}
-      <div className="flex-1 px-6 pb-safe pb-12">
+      <div className="flex-1 px-6 pb-safe pb-20">
         {isEditing ? (
           <textarea
             autoFocus
