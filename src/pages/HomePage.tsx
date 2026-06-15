@@ -265,8 +265,9 @@ export default function HomePage() {
           </div>
         ) : (
           <div
-            className="rounded-2xl px-4 py-5 flex flex-col items-center gap-2"
+            className="rounded-2xl px-4 py-5 flex flex-col items-center gap-2 cursor-pointer active:opacity-80 transition-opacity"
             style={{ background: theme.cardBg, border: `1px dashed ${theme.border}` }}
+            onClick={() => navigate(`/diary/${selectedDate}?create=true`)}
           >
             <PenLine size={20} style={{ color: `${theme.mutedText}80` }} />
             <p className="text-sm text-center text-pretty" style={{ color: theme.mutedText }}>

@@ -13,12 +13,17 @@ export default function SearchPage() {
   const [searched, setSearched] = useState(false)
 
   const handleSearch = useCallback(() => {
-    if (!keyword.trim()) return
+    const kw = keyword.trim()
+    if (!kw) {
+      toast.info(config.language === 'zh' ? '请输入搜索关键词' : 'Please enter a keyword')
+      return
+    }
     try {
-      const res = searchDiaries(keyword.trim())
+      const res = searchDiaries(kw)
       setResults(res)
       setSearched(true)
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error('Search error:', err)
       toast.error(config.language === 'zh' ? '搜索出错，请重试' : 'Search error, please retry')
     }
   }, [keyword, config.language])
@@ -56,6 +61,7 @@ export default function SearchPage() {
             placeholder={t.searchPlaceholder}
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
+            onInput={e => setKeyword((e.target as HTMLInputElement).value)}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === 'Go' || e.key === 'Search' || e.key === 'Done') {
                 e.preventDefault()
@@ -78,10 +84,10 @@ export default function SearchPage() {
             color: keyword.trim() ? theme.bg : theme.mutedText,
             touchAction: 'manipulation',
             cursor: 'pointer',
+            opacity: keyword.trim() ? 1 : 0.6,
           }}
           onClick={handleSearch}
           onTouchEnd={(e) => { e.preventDefault(); handleSearch() }}
-          disabled={!keyword.trim()}
         >
           {t.search}
         </button>

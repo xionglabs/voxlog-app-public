@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Edit2, Save, Trash2, Share2, X } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Edit2, Save, Trash2, Share2, X, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useApp } from '@/contexts/AppContext'
 import { loadDiary, saveDiary, deleteDiary } from '@/utils/storage'
@@ -11,29 +11,60 @@ import { format, parseISO } from 'date-fns'
 export default function DiaryDetailPage() {
   const { date } = useParams<{ date: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { theme, t, config } = useApp()
 
+  const isCreating = searchParams.get('create') === 'true'
+
   const [entry, setEntry] = useState<DiaryEntry | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editContent, setEditContent] = useState('')
+  const [isEditing, setIsEditing] = useState(isCreating)
   const [showExport, setShowExport] = useState(false)
   const [exportLoading, setExportLoading] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (!date) return
     const d = loadDiary(date)
     setEntry(d)
-    setEditContent(d?.content || '')
-  }, [date])
+    if (!d && isCreating) {
+      // 创建模式：预填模板
+      const template = date
+        ? `【日期】${date}\n【天气】\n【今日记录】\n\n【每日新知】\n\n【今日备忘】\n`
+        : ''
+      // 延迟设置让 ref 可用
+      setTimeout(() => {
+        if (textareaRef.current) textareaRef.current.value = template
+      }, 0)
+    }
+  }, [date, isCreating])
 
   function handleSave() {
-    if (!entry || !date) return
-    const updated: DiaryEntry = { ...entry, content: editContent, updatedAt: Date.now() }
-    saveDiary(updated)
-    setEntry(updated)
-    setIsEditing(false)
-    toast.success(t.saveSuccess)
+    if (!date) return
+    const text = textareaRef.current?.value || ''
+    if (!text.trim()) {
+      toast.warning(config.language === 'zh' ? '日记内容不能为空' : 'Diary content cannot be empty')
+      return
+    }
+    const now = Date.now()
+    if (entry) {
+      const updated: DiaryEntry = { ...entry, content: text, updatedAt: now }
+      saveDiary(updated)
+      setEntry(updated)
+      setIsEditing(false)
+      toast.success(t.saveSuccess)
+    } else {
+      const newEntry: DiaryEntry = {
+        date,
+        content: text,
+        createdAt: now,
+        updatedAt: now,
+      }
+      saveDiary(newEntry)
+      setEntry(newEntry)
+      setIsEditing(false)
+      toast.success(config.language === 'zh' ? '日记已创建' : 'Diary created')
+    }
   }
 
   function handleDelete() {
@@ -83,10 +114,22 @@ export default function DiaryDetailPage() {
     { id: 'word' as const, label: t.exportWord, desc: t.exportWordDesc, free: false },
   ]
 
-  if (!entry) {
+  // entry 为 null 且非创建模式时，提示可创建
+  if (!entry && !isEditing) {
     return (
-      <div className="flex flex-col min-h-screen items-center justify-center" style={{ background: theme.bg }}>
-        <p style={{ color: theme.mutedText }}>{config.language === 'zh' ? '日记不存在' : 'Diary not found'}</p>
+      <div className="flex flex-col min-h-screen items-center justify-center gap-6" style={{ background: theme.bg }}>
+        <p style={{ color: theme.mutedText }}>
+          {config.language === 'zh' ? `${displayDate} 暂无记录` : `No diary on ${displayDate}`}
+        </p>
+        <button
+          type="button"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium active:opacity-80 transition-opacity"
+          style={{ background: theme.accent, color: '#fff' }}
+          onClick={() => setIsEditing(true)}
+        >
+          <Plus size={16} />
+          {config.language === 'zh' ? '新建日记' : 'New Diary'}
+        </button>
       </div>
     )
   }
@@ -114,7 +157,10 @@ export default function DiaryDetailPage() {
               <button
                 className="p-2 rounded-xl active:opacity-70"
                 style={{ color: theme.mutedText }}
-                onClick={() => { setIsEditing(false); setEditContent(entry.content) }}
+                onClick={() => {
+                  setIsEditing(false)
+                  if (textareaRef.current) textareaRef.current.value = entry?.content || ''
+                }}
               >
                 <X size={18} />
               </button>
@@ -158,11 +204,11 @@ export default function DiaryDetailPage() {
       <div className="flex-1 px-6 pb-safe pb-20">
         {isEditing ? (
           <textarea
+            ref={textareaRef}
             autoFocus
             className="w-full resize-none text-sm leading-relaxed bg-transparent outline-none"
             style={{ color: theme.text, minHeight: '60vh' }}
-            value={editContent}
-            onChange={e => setEditContent(e.target.value)}
+            defaultValue={entry?.content || ''}
           />
         ) : (
           <div className="whitespace-pre-wrap text-sm leading-relaxed" style={{ color: theme.text }}>

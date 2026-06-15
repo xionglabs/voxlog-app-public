@@ -161,24 +161,34 @@ export function useSpeechRecognition({ language, onResult, onError }: Options): 
   const startNative = useCallback(async () => {
     const hasNative = await loadNativeSpeech()
     if (!hasNative || !nativeSpeech) {
-      // 原生不可用，fallback 到 Web Speech API
       await startWebSpeech()
       return
     }
 
     try {
-      // 申请麦克风权限
-      const { speechRecognition } = await nativeSpeech.checkPermissions()
-      if (speechRecognition !== 'granted') {
-        const result = await nativeSpeech.requestPermissions()
-        if (result.speechRecognition !== 'granted') {
-          onError?.('请在设置中允许麦克风权限')
-          return
-        }
+      // 先检查服务是否可用，不可用直接 fallback
+      const { available } = await nativeSpeech.available()
+      if (!available) {
+        await startWebSpeech()
+        return
+      }
+
+      // 权限处理：先 request（已授权时无副作用），再检查
+      // 注意：Android 上 checkPermissions 有时返回 'prompt' 即使已授权，
+      // 所以先 requestPermissions，如仍非 granted 就继续尝试 start（不中断流程）
+      try {
+        await nativeSpeech.requestPermissions()
+      } catch {
+        // requestPermissions 失败不中断，让 start 决定
       }
 
       setIsRecording(true)
       setInterimText('')
+
+      // 监听实时结果（start 前先注册 listener）
+      await nativeSpeech.addListener('partialResults', (data: { matches: string[] }) => {
+        if (data.matches?.[0]) setInterimText(data.matches[0])
+      })
 
       await nativeSpeech.start({
         language: language === 'zh' ? 'zh-CN' : 'en-US',
@@ -187,21 +197,23 @@ export function useSpeechRecognition({ language, onResult, onError }: Options): 
         partialResults: true,
         popup: false,
       })
-
-      // 监听实时结果
-      await nativeSpeech.addListener('partialResults', (data: { matches: string[] }) => {
-        if (data.matches?.[0]) setInterimText(data.matches[0])
-      })
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      // 原生失败（如 "Speech recognition service is not available"），自动 fallback
-      if (msg.includes('Speech recognition') || msg.includes('not available')) {
-        setIsRecording(false)
-        await startWebSpeech()
-        return
-      }
-      onError?.(msg)
+      const msg = (err instanceof Error ? err.message : String(err)).toLowerCase()
       setIsRecording(false)
+      setInterimText('')
+      await nativeSpeech?.removeAllListeners?.()
+
+      if (msg.includes('not available') || msg.includes('speech recognition')) {
+        // 原生服务不可用（无 Google 语音服务），fallback Web
+        await startWebSpeech()
+      } else if (msg.includes('permission') || msg.includes('not-allowed') || msg.includes('denied')) {
+        onError?.(language === 'zh'
+          ? '请在手机「设置 > 应用 > VoxLog > 权限」中开启麦克风'
+          : 'Please enable microphone in Settings > Apps > VoxLog > Permissions')
+      } else {
+        // 其他错误也 fallback Web
+        await startWebSpeech()
+      }
     }
   }, [language, onError, startWebSpeech])
 
