@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, X, ChevronRight } from 'lucide-react'
+import { toast } from 'sonner'
 import { useApp } from '@/contexts/AppContext'
 import { searchDiaries } from '@/utils/storage'
 import type { SearchResult } from '@/types/voxlog'
@@ -8,12 +9,14 @@ import type { SearchResult } from '@/types/voxlog'
 export default function SearchPage() {
   const { theme, t, config } = useApp()
   const navigate = useNavigate()
+  const inputRef = useRef<HTMLInputElement>(null)
   const [keyword, setKeyword] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searched, setSearched] = useState(false)
 
   const handleSearch = useCallback(() => {
-    const kw = keyword.trim()
+    // 从 DOM 直接读取值，避免 Android WebView 受控输入不同步问题
+    const kw = (inputRef.current?.value || keyword).trim()
     if (!kw) {
       toast.info(config.language === 'zh' ? '请输入搜索关键词' : 'Please enter a keyword')
       return
@@ -29,6 +32,7 @@ export default function SearchPage() {
   }, [keyword, config.language])
 
   const handleClear = () => {
+    if (inputRef.current) inputRef.current.value = ''
     setKeyword('')
     setResults([])
     setSearched(false)
@@ -46,7 +50,7 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
-      <div className="px-5 pt-safe pt-10 pb-4">
+      <div className="px-5 pt-4 pb-4">
         <h1 className="text-xl font-bold mb-4" style={{ color: theme.text }}>{t.search}</h1>
 
         {/* 搜索输入框 */}
@@ -56,6 +60,7 @@ export default function SearchPage() {
         >
           <Search size={16} style={{ color: theme.mutedText, flexShrink: 0 }} />
           <input
+            ref={inputRef}
             className="flex-1 bg-transparent text-sm outline-none min-w-0"
             style={{ color: theme.text }}
             placeholder={t.searchPlaceholder}
@@ -94,7 +99,7 @@ export default function SearchPage() {
       </div>
 
       {/* 搜索结果 */}
-      <div className="flex-1 px-4 pb-safe pb-20">
+      <div className="flex-1 px-4 pb-safe pb-16">
         {searched && (
           <div className="mb-3 px-2">
             <span className="text-sm" style={{ color: theme.mutedText }}>

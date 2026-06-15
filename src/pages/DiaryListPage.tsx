@@ -74,7 +74,7 @@ export default function DiaryListPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: theme.bg, color: theme.text }}>
       {/* 顶部 */}
-      <div className="px-5 pt-safe pt-10 pb-4">
+      <div className="px-5 pt-4 pb-4">
         <div className="flex items-end justify-between">
           <div>
             <h1 className="text-xl font-bold" style={{ color: theme.text }}>{t.diaryList}</h1>
@@ -95,7 +95,7 @@ export default function DiaryListPage() {
         </div>
       </div>
 
-      <div className="flex-1 pb-safe pb-20">
+      <div className="flex-1 pb-safe pb-16">
         {diaries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <BookOpen size={36} style={{ color: `${theme.border}` }} />

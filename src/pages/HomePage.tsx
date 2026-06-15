@@ -146,20 +146,30 @@ export default function HomePage() {
   const isSelectedToday = selectedDate === today
   const isSelectedTodayDate = dateFnsIsToday(parseISO(selectedDate))
 
-  // 长按麦克风：开始录音
+  // 长按麦克风：尝试语音，失败则自动弹出文字输入
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault()
     if (isProcessing) return
-    if (!speechSupported) { openTextInput(); return }
+    if (!speechSupported) {
+      // 语音不可用（国产安卓无谷歌语音服务），直接弹出文字输入
+      openTextInput()
+      toast.info(config.language === 'zh' ? '您的设备不支持语音，已切换为文字输入' : 'Speech not supported, switched to text input')
+      return
+    }
     isHoldingRef.current = true
-    startListening()
-  }, [isProcessing, speechSupported, openTextInput, startListening])
+    startListening().catch(() => {
+      // 语音启动失败，自动降级到文字输入
+      isHoldingRef.current = false
+      openTextInput()
+      toast.info(config.language === 'zh' ? '语音启动失败，已切换为文字输入' : 'Speech failed, switched to text input')
+    })
+  }, [isProcessing, speechSupported, openTextInput, startListening, config.language])
 
   // 松开：停止录音，结果由 hook 回调 onResult → handleAiOrganize
   const handlePointerUp = useCallback(() => {
     if (!isHoldingRef.current) return
     isHoldingRef.current = false
-    stopListening()
+    stopListening().catch(() => {})
   }, [stopListening])
 
   // 文字输入提交：直接保存，不经过 AI
@@ -203,7 +213,7 @@ export default function HomePage() {
       style={{ background: theme.bg, color: theme.text }}
     >
       {/* ── 顶部标题区 ── */}
-      <div className="px-5 pt-safe pt-10 pb-3 flex items-end justify-between">
+      <div className="px-5 pt-4 pb-3 flex items-end justify-between">
         <div>
           <div className="text-xs mb-1" style={{ color: theme.mutedText }}>
             {format(new Date(), config.language === 'zh' ? 'yyyy年M月d日' : 'MMMM d, yyyy')}
@@ -362,7 +372,7 @@ export default function HomePage() {
           )}
 
           {/* 主录音按钮 */}
-          <div className="flex flex-col items-center pb-safe pb-20 gap-3 pt-2">
+          <div className="flex flex-col items-center pb-safe pb-16 gap-3 pt-2">
             <div className="relative flex items-center justify-center">
               {isRecording && (
                 <div
@@ -420,7 +430,7 @@ export default function HomePage() {
         </>
       )}
 
-      {!isSelectedToday && <div className="pb-safe pb-20" />}
+      {!isSelectedToday && <div className="pb-safe pb-16" />}
     </div>
   )
 }

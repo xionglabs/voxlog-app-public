@@ -133,23 +133,19 @@ All colors MUST be HSL.
   }
 
   /* 安全区域底部 */
+  /* 安全区域顶部 — 已改用 @capacitor/status-bar 插件设置非沉浸式状态栏，
+     让 WebView 自动从状态栏下方渲染，不再需要 CSS 猜高度 */
   .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 64px);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 
-  /* 安全区域顶部（Android 沉浸式状态栏） */
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 64px);
-  }
-
-  /* 页面根节点：顶部留出状态栏高度 */
-  #root {
-    padding-top: env(safe-area-inset-top, 64px);
-  }
-
-  /* 额外安全边距：防止弧角屏幕内容被裁切 */
   .px-safe {
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* 页面根节点：顶部不再通过 env() 补 padding，由 status-bar 插件控制 */
+  #root {
+    padding-top: 0;
   }
 }
