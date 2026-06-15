@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <style>
+      /* 初始加载诊断：如果 3 秒后 JS 仍未执行，显示提示 */
+      #loading-diag {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a1a;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s;
+      }
+      #loading-diag.hidden { opacity: 0; pointer-events: none; }
+      #loading-diag .spinner {
+        width: 32px; height: 32px;
+        border: 3px solid #333;
+        border-top-color: #D97757;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      #loading-diag .msg { text-align: center; font-size: 14px; }
+      #loading-diag .err { color: #ff6b6b; margin-top: 8px; display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="loading-diag">
+      <div style="text-align:center">
+        <div class="spinner"></div>
+        <div class="msg">VoxLog 加载中...</div>
+        <div class="err" id="load-err">加载超时，请检查网络或重新安装</div>
+      </div>
+    </div>
+    <noscript>
+      <div style="padding:40px 20px;text-align:center;background:#1a1a1a;color:#fff;min-height:100vh;">
+        您的浏览器不支持 JavaScript，VoxLog 无法运行。
+      </div>
+    </noscript>
+    <script>
+      // 3 秒后如果诊断层仍在，显示超时提示（帮助排查 JS 是否加载）
+      setTimeout(function() {
+        var d = document.getElementById('loading-diag');
+        if (d && !d.classList.contains('hidden')) {
+          document.getElementById('load-err').style.display = 'block';
+        }
+      }, 3000);
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
