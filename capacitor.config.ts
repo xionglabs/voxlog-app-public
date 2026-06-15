@@ -21,6 +21,13 @@ const config: CapacitorConfig = {
     Filesystem: {
       // 写入外部存储 Downloads 目录
     },
+    StatusBar: {
+      // 设置状态栏为非沉浸式，让 WebView 自动从状态栏下方开始渲染
+      // 这样前端不需要自己猜测状态栏高度
+      overlaysWebView: false,
+      style: 'DARK',
+      backgroundColor: '#0F0F12',
+    },
   },
 }
 
